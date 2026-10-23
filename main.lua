@@ -16,7 +16,7 @@
 local PLUGIN_NAME = "Gear Preset Checker"
 
 local helpers     = require("ui_helpers")
-helpers.VERSION = "0.11.25"
+helpers.VERSION = "0.11.26"
 local inventories = require("inventories")
 
 -------------------------------------------------------------------------------
@@ -185,6 +185,7 @@ local MAX_CELLS = 60
 helpers.freeHeight = true   -- 0.11.12: drag height sets grid rows
 helpers.minGripW = 160
 local headerText, summaryText, noteText, moreText = nil, nil, nil, nil
+local presetDD = nil   -- 0.11.26: preset picker dropdown (was Prev / Next)
 local moreBtn = nil
 local cells = {}       -- i -> { item = Sprite, badge = Sprite }
 local editParts = {}
@@ -250,6 +251,7 @@ local function refresh()
     local summary, note = "", ""
     if preset == nil then
         helpers.setText(headerText, H.lbl("No presets saved"), "content")
+        if presetDD then presetDD.hidden = true end
         summary = H.lbl(editOpen and "Gear up, type a name and press Save." or "Press Edit to save your current gear.")
     else
         local missing, notEquipped, wornAvailable, extraWorn, _, qty = compare(preset)
@@ -295,7 +297,8 @@ local function refresh()
         elseif not bankKnown and nMissing > 0 then note = "Open your bank once to check it"
         elseif not wornAvailable then note = "Worn items unreadable; backpack only" end
         helpers.safe(function()
-            helpers.setText(headerText, H.gold(preset.name) .. H.lbl(formatStr(" ({} of {})", activeIndex, #presets))
+            if presetDD then presetDD.hidden = false; presetDD:refresh() end
+            helpers.setText(headerText, H.lbl(formatStr("({} of {})", activeIndex, #presets))
                 .. (includesPack(preset) and "" or H.lbl(" - worn only")))
         end)
     end
@@ -430,26 +433,20 @@ end
 
 local function buildPanel(root)
     panelRoot = root
-    -- Row 1: [Prev]  Farming (1 of 2)  [Next]
+    -- Row 1: [Farming v]  (1 of 2)   (0.11.26: dropdown instead of Prev / Next)
     local y1 = H.rowY(1)
-    helpers.button(root, H.PAD, y1, 40, 18, "Prev", function()
-        if #presets > 0 then
-            activeIndex = (activeIndex - 2) % #presets + 1
-            save(); refresh()
-        end
-    end)
-    local nextBtn = helpers.button(root, 0, y1, 40, 18, "Next", function()
-        if #presets > 0 then
-            activeIndex = activeIndex % #presets + 1
-            save(); refresh()
-        end
-    end)
-    nextBtn:SetPos(-H.PAD - 40, y1, 1.0, 0.0)
+    local DD_W = 170
+    presetDD = helpers.dropdown(root, H.PAD, y1, DD_W, 18, { name = "preset",
+        options = function() local L = {}; for i, p in ipairs(presets) do L[i] = tostring(p.name or ("Preset " .. i)) end; return L end,
+        get = function() return activeIndex end,
+        set = function(i) if presets[i] then activeIndex = i; save() end end,
+        onChange = function() refresh() end,
+        tip = "Pick which saved preset to check." })
     headerText = ui.Text.new(root)
-    headerText:SetPos(H.PAD + 44, y1)
-    headerText:SetSize(-2 * (H.PAD + 44), H.ROW_HEIGHT, 1.0, 0.0)
+    headerText:SetPos(H.PAD + DD_W + 6, y1)
+    headerText:SetSize(-(2 * H.PAD + DD_W + 6), H.ROW_HEIGHT, 1.0, 0.0)
     headerText.font = H.FONT
-    headerText:AlignTo(ui.AlignMode.CENTRE, ui.AlignMode.CENTRE)
+    headerText:AlignTo(ui.AlignMode.TOPLEFT, ui.AlignMode.CENTRE)
     helpers.shadow(headerText)
     helpers.track(headerText, "content", 0)
 
