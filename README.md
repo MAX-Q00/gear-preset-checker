@@ -1,25 +1,23 @@
 # Gear Preset Checker
 
-Save your current worn gear and backpack as named presets, then see at a glance which preset items are missing, in your bank, not worn, or extra.
+Save what you're wearing and carrying as a preset, then check what's missing
+before you head out.
 
-Current version: 0.11.25
+## How to use
+1. Put on your gear and fill your backpack the way you want it.
+2. Open the plugin panel, type a name (for example "Vorago") and press **Save**.
+   You can keep up to 5 presets. Saving with an existing name replaces it.
+3. Later, open the panel and use **<** and **>** to pick a preset. It lists:
+   - **Missing** (red): items you don't have, with how many you're short.
+   - **Not equipped** (yellow): gear that's in your backpack but not worn.
+   - "All items present" (green) when you're ready.
+4. **Delete** removes the selected preset.
 
-- Install from mod.io: https://mod.io/g/runescape/m/gear-preset-checker
+The list updates by itself whenever your backpack or equipment changes.
 
-## Report a bug or request a feature
+## Permissions
+None.
 
-Open an issue: https://github.com/MAX-Q00/gear-preset-checker/issues/new/choose
-
-For a bug, please include the plugin version, what happened, what you expected, steps to reproduce, a screenshot if you can, and your game resolution and UI scale.
-
-Contact: Dylan@quspace.agency
-
-## EULA
-
-This Plugin uses software licensed by Jagex to the developer under the terms of the Jagex End User Licence Agreement (EULA) found at https://legal.jagex.com/docs/terms/eula (and all terms incorporated into it by reference). The development and any use of the Plugin is at all times subject to the Jagex EULA.
-
-By submitting a Plugin (as defined in Schedule 4 of the EULA), you acknowledge that you agree to the terms of the Jagex End User License Agreement (EULA) found at https://legal.jagex.com/docs/terms/eula (and all terms incorporated into it be reference) and acknowledge that such terms are legally binding on you. If you do not agree to the terms of the EULA, you must not submit a Plugin or use the Plugin functionality anyway. In such circumstances, Jagex does not licence the software to you, or grant you any of the relevant rights relating to the submission of Plugins set out in the EULA and you will not be permitted to access or use the Plugin functionality in any way whatsoever.
-
----
-
-Not affiliated with or endorsed by Jagex. RuneScape is a trademark of Jagex Ltd.
+## Rules it follows
+It only shows information. It never equips, withdraws or moves items, and
+never clicks for you. It only looks at your own backpack and equipment.

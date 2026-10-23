@@ -16,7 +16,7 @@
 local PLUGIN_NAME = "Gear Preset Checker"
 
 local helpers     = require("ui_helpers")
-helpers.VERSION = "0.11.26"
+helpers.VERSION = "0.11.27"
 local inventories = require("inventories")
 
 -------------------------------------------------------------------------------
@@ -185,6 +185,7 @@ local MAX_CELLS = 60
 helpers.freeHeight = true   -- 0.11.12: drag height sets grid rows
 helpers.minGripW = 160
 local headerText, summaryText, noteText, moreText = nil, nil, nil, nil
+local ddHandle = nil   -- 0.11.27: preset / summary column border (helpers.columns)
 local presetDD = nil   -- 0.11.26: preset picker dropdown (was Prev / Next)
 local moreBtn = nil
 local cells = {}       -- i -> { item = Sprite, badge = Sprite }
@@ -252,6 +253,7 @@ local function refresh()
     if preset == nil then
         helpers.setText(headerText, H.lbl("No presets saved"), "content")
         if presetDD then presetDD.hidden = true end
+        if ddHandle then ddHandle:setHidden(true) end
         summary = H.lbl(editOpen and "Gear up, type a name and press Save." or "Press Edit to save your current gear.")
     else
         local missing, notEquipped, wornAvailable, extraWorn, _, qty = compare(preset)
@@ -298,6 +300,7 @@ local function refresh()
         elseif not wornAvailable then note = "Worn items unreadable; backpack only" end
         helpers.safe(function()
             if presetDD then presetDD.hidden = false; presetDD:refresh() end
+            if ddHandle then ddHandle:setHidden(false) end
             helpers.setText(headerText, H.lbl(formatStr("({} of {})", activeIndex, #presets))
                 .. (includesPack(preset) and "" or H.lbl(" - worn only")))
         end)
@@ -435,7 +438,8 @@ local function buildPanel(root)
     panelRoot = root
     -- Row 1: [Farming v]  (1 of 2)   (0.11.26: dropdown instead of Prev / Next)
     local y1 = H.rowY(1)
-    local DD_W = 170
+    local ddCols = helpers.columns("presetRow", { preset = { w = 170, min = 90, max = 320 } }, nil)
+    local DD_W = ddCols:get("preset")
     presetDD = helpers.dropdown(root, H.PAD, y1, DD_W, 18, { name = "preset",
         options = function() local L = {}; for i, p in ipairs(presets) do L[i] = tostring(p.name or ("Preset " .. i)) end; return L end,
         get = function() return activeIndex end,
@@ -449,6 +453,19 @@ local function buildPanel(root)
     headerText:AlignTo(ui.AlignMode.TOPLEFT, ui.AlignMode.CENTRE)
     helpers.shadow(headerText)
     helpers.track(headerText, "content", 0)
+    ddHandle = ddCols:handle(root, "preset", 1, "Drag to resize the preset picker column (Settings > Column widths > Reset).")
+    local function applyDD()
+        local w = ddCols:get("preset")
+        presetDD.w = w
+        presetDD:SetPos(H.PAD, y1); presetDD:refresh()
+        helpers.safe(function()
+            headerText:SetPos(H.PAD + w + 6, y1)
+            headerText:SetSize(-(2 * H.PAD + w + 6), H.ROW_HEIGHT, 1.0, 0.0)
+        end)
+        ddHandle:place(H.PAD + w + 3, y1, H.ROW_HEIGHT)
+    end
+    ddCols.onChange = function() pcall(applyDD) end
+    pcall(applyDD)
 
     -- Edit row (hidden unless Edit is on): name field, Save, Delete.
     local nameField = helpers.input(root, H.PAD, 0, 104, 18, "Preset name")
