@@ -1,0 +1,11 @@
+{
+  "name": "Gear Preset Checker",
+  "version": "0.11.25",
+  "contactEmailAddress": "Dylan@quspace.agency",
+  "requiredDependencies": {},
+  "optionalDependencies": {},
+  "requiredPermissions": [],
+  "optionalPermissions": [],
+  "dependencies": {},
+  "hasRibbonIcon": true
+}
