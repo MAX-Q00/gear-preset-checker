@@ -16,7 +16,7 @@
 local PLUGIN_NAME = "Gear Preset Checker"
 
 local helpers     = require("ui_helpers")
-helpers.VERSION = "0.11.28"
+helpers.VERSION = "0.11.29"
 local inventories = require("inventories")
 
 -------------------------------------------------------------------------------
